@@ -20,7 +20,7 @@ use revm::{
 use rwasm_revm::{DefaultOp, RwasmBuilder, RwasmEvm as RevmRwasm};
 
 /// The Ethereum EVM context type.
-pub type RwasmEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
+pub type EthRwasmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 
 /// Ethereum EVM implementation.
 ///
@@ -28,26 +28,26 @@ pub type RwasmEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 /// support. [`Inspector`] support is configurable at runtime because it's part of the underlying
 /// [`RevmEvm`] type.
 #[expect(missing_debug_implementations)]
-pub struct RwasmEvm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
+pub struct EthRwasm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
     inner: RevmRwasm<
-        RwasmEvmContext<DB>,
+        EthRwasmContext<DB>,
         I,
-        EthInstructions<EthInterpreter, RwasmEvmContext<DB>>,
+        EthInstructions<EthInterpreter, EthRwasmContext<DB>>,
         PRECOMPILE,
     >,
     inspect: bool,
 }
 
-impl<DB: Database, I, PRECOMPILE> RwasmEvm<DB, I, PRECOMPILE> {
+impl<DB: Database, I, PRECOMPILE> EthRwasm<DB, I, PRECOMPILE> {
     /// Creates a new Ethereum EVM instance.
     ///
     /// The `inspect` argument determines whether the configured [`Inspector`] of the given
     /// [`RevmEvm`] should be invoked on [`Evm::transact`].
     pub const fn new(
         evm: RevmRwasm<
-            RwasmEvmContext<DB>,
+            EthRwasmContext<DB>,
             I,
-            EthInstructions<EthInterpreter, RwasmEvmContext<DB>>,
+            EthInstructions<EthInterpreter, EthRwasmContext<DB>>,
             PRECOMPILE,
         >,
         inspect: bool,
@@ -58,24 +58,24 @@ impl<DB: Database, I, PRECOMPILE> RwasmEvm<DB, I, PRECOMPILE> {
     /// Consumes self and return the inner EVM instance.
     pub fn into_inner(
         self,
-    ) -> RevmRwasm<RwasmEvmContext<DB>, I, EthInstructions<EthInterpreter, RwasmEvmContext<DB>>, PRECOMPILE>
+    ) -> RevmRwasm<EthRwasmContext<DB>, I, EthInstructions<EthInterpreter, EthRwasmContext<DB>>, PRECOMPILE>
     {
         self.inner
     }
 
     /// Provides a reference to the EVM context.
-    pub fn ctx(&self) -> &RwasmEvmContext<DB> {
+    pub fn ctx(&self) -> &EthRwasmContext<DB> {
         &self.inner.0.ctx
     }
 
     /// Provides a mutable reference to the EVM context.
-    pub fn ctx_mut(&mut self) -> &mut RwasmEvmContext<DB> {
+    pub fn ctx_mut(&mut self) -> &mut EthRwasmContext<DB> {
         &mut self.inner.0.ctx
     }
 }
 
-impl<DB: Database, I, PRECOMPILE> Deref for RwasmEvm<DB, I, PRECOMPILE> {
-    type Target = RwasmEvmContext<DB>;
+impl<DB: Database, I, PRECOMPILE> Deref for EthRwasm<DB, I, PRECOMPILE> {
+    type Target = EthRwasmContext<DB>;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -83,18 +83,18 @@ impl<DB: Database, I, PRECOMPILE> Deref for RwasmEvm<DB, I, PRECOMPILE> {
     }
 }
 
-impl<DB: Database, I, PRECOMPILE> DerefMut for RwasmEvm<DB, I, PRECOMPILE> {
+impl<DB: Database, I, PRECOMPILE> DerefMut for EthRwasm<DB, I, PRECOMPILE> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.ctx_mut()
     }
 }
 
-impl<DB, I, PRECOMPILE> Evm for RwasmEvm<DB, I, PRECOMPILE>
+impl<DB, I, PRECOMPILE> Evm for EthRwasm<DB, I, PRECOMPILE>
 where
     DB: Database,
-    I: Inspector<RwasmEvmContext<DB>>,
-    PRECOMPILE: PrecompileProvider<RwasmEvmContext<DB>, Output = InterpreterResult>,
+    I: Inspector<EthRwasmContext<DB>>,
+    PRECOMPILE: PrecompileProvider<EthRwasmContext<DB>, Output = InterpreterResult>,
 {
     type DB = DB;
     type Tx = TxEnv;
@@ -215,13 +215,13 @@ where
     }
 }
 
-/// Factory producing [`RwasmEvm`].
+/// Factory producing [`EthRwasm`].
 #[derive(Debug, Default, Clone, Copy)]
 #[non_exhaustive]
-pub struct RwasmEvmFactory;
+pub struct EthRwasmFactory;
 
-impl EvmFactory for RwasmEvmFactory {
-    type Evm<DB: Database, I: Inspector<RwasmEvmContext<DB>>> = RwasmEvm<DB, I, Self::Precompiles>;
+impl EvmFactory for EthRwasmFactory {
+    type Evm<DB: Database, I: Inspector<EthRwasmContext<DB>>> = EthRwasm<DB, I, Self::Precompiles>;
     type Context<DB: Database> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
     type Tx = TxEnv;
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
@@ -231,7 +231,7 @@ impl EvmFactory for RwasmEvmFactory {
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, NoOpInspector> {
         let spec_id = input.cfg_env.spec;
-        RwasmEvm {
+        EthRwasm {
             inner: Context::rwasm()
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
@@ -251,7 +251,7 @@ impl EvmFactory for RwasmEvmFactory {
         inspector: I,
     ) -> Self::Evm<DB, I> {
         let spec_id = input.cfg_env.spec;
-        RwasmEvm {
+        EthRwasm {
             inner: Context::rwasm()
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
@@ -297,7 +297,7 @@ mod tests {
             early_cfg_env.chain_id = 1;
 
             let early_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: early_cfg_env };
-            let factory = RwasmEvmFactory;
+            let factory = EthRwasmFactory;
             let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
 
             // precompile should NOT be available in early spec

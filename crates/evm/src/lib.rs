@@ -13,7 +13,10 @@ pub mod block;
 pub mod evm;
 pub use evm::{Database, Evm, EvmFactory};
 pub mod eth;
-pub use eth::{EthEvm, EthEvmFactory};
+#[cfg(feature = "enforce-rwasm")]
+pub use eth::{EthRwasmFactory as EthEvmFactory, EthRwasm as EthEvm, EthRwasmContext as EthRwasmContext};
+#[cfg(not(feature = "enforce-rwasm"))]
+pub use eth::{EthEvm, EthEvmFactory, EthRwasmFactory, EthRwasm, EthRwasmContext};
 pub mod env;
 pub use env::EvmEnv;
 pub mod error;
