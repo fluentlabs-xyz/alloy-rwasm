@@ -27,4 +27,5 @@ mod either;
 // re-export revm and op-revm
 #[cfg(feature = "op")]
 pub use op_revm;
+pub use rwasm_revm;
 pub use revm;

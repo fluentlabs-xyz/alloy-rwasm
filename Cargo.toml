@@ -54,6 +54,7 @@ op-alloy-consensus = { version = "0.17", default-features = false }
 # revm
 revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/merge-revm-v71", default-features = false }
 op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/merge-revm-v71", default-features = false }
+rwasm-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/merge-revm-v71", default-features = false }
 
 # misc
 auto_impl = "1"

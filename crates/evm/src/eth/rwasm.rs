@@ -8,27 +8,19 @@ use core::{
     ops::{Deref, DerefMut},
 };
 use revm::{
-    context::{BlockEnv, CfgEnv, Evm as RevmEvm, TxEnv},
+    context::{BlockEnv, CfgEnv, TxEnv},
     context_interface::result::{EVMError, HaltReason, ResultAndState},
     handler::{instructions::EthInstructions, EthPrecompiles, PrecompileProvider},
     inspector::NoOpInspector,
     interpreter::{interpreter::EthInterpreter, InterpreterResult},
     precompile::{PrecompileSpecId, Precompiles},
     primitives::hardfork::SpecId,
-    Context, ExecuteEvm, InspectEvm, Inspector, MainBuilder, MainContext,
+    Context, ExecuteEvm, InspectEvm, Inspector
 };
-
-mod block;
-pub use block::*;
-
-pub mod dao_fork;
-pub mod eip6110;
-pub mod receipt_builder;
-pub mod spec;
-pub mod rwasm;
+use rwasm_revm::{DefaultOp, RwasmBuilder, RwasmEvm as RevmRwasm};
 
 /// The Ethereum EVM context type.
-pub type EthEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
+pub type RwasmEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 
 /// Ethereum EVM implementation.
 ///
@@ -36,26 +28,26 @@ pub type EthEvmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 /// support. [`Inspector`] support is configurable at runtime because it's part of the underlying
 /// [`RevmEvm`] type.
 #[expect(missing_debug_implementations)]
-pub struct EthEvm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
-    inner: RevmEvm<
-        EthEvmContext<DB>,
+pub struct RwasmEvm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
+    inner: RevmRwasm<
+        RwasmEvmContext<DB>,
         I,
-        EthInstructions<EthInterpreter, EthEvmContext<DB>>,
+        EthInstructions<EthInterpreter, RwasmEvmContext<DB>>,
         PRECOMPILE,
     >,
     inspect: bool,
 }
 
-impl<DB: Database, I, PRECOMPILE> EthEvm<DB, I, PRECOMPILE> {
+impl<DB: Database, I, PRECOMPILE> RwasmEvm<DB, I, PRECOMPILE> {
     /// Creates a new Ethereum EVM instance.
     ///
     /// The `inspect` argument determines whether the configured [`Inspector`] of the given
     /// [`RevmEvm`] should be invoked on [`Evm::transact`].
     pub const fn new(
-        evm: RevmEvm<
-            EthEvmContext<DB>,
+        evm: RevmRwasm<
+            RwasmEvmContext<DB>,
             I,
-            EthInstructions<EthInterpreter, EthEvmContext<DB>>,
+            EthInstructions<EthInterpreter, RwasmEvmContext<DB>>,
             PRECOMPILE,
         >,
         inspect: bool,
@@ -66,24 +58,24 @@ impl<DB: Database, I, PRECOMPILE> EthEvm<DB, I, PRECOMPILE> {
     /// Consumes self and return the inner EVM instance.
     pub fn into_inner(
         self,
-    ) -> RevmEvm<EthEvmContext<DB>, I, EthInstructions<EthInterpreter, EthEvmContext<DB>>, PRECOMPILE>
+    ) -> RevmRwasm<RwasmEvmContext<DB>, I, EthInstructions<EthInterpreter, RwasmEvmContext<DB>>, PRECOMPILE>
     {
         self.inner
     }
 
     /// Provides a reference to the EVM context.
-    pub const fn ctx(&self) -> &EthEvmContext<DB> {
-        &self.inner.ctx
+    pub fn ctx(&self) -> &RwasmEvmContext<DB> {
+        &self.inner.0.ctx
     }
 
     /// Provides a mutable reference to the EVM context.
-    pub fn ctx_mut(&mut self) -> &mut EthEvmContext<DB> {
-        &mut self.inner.ctx
+    pub fn ctx_mut(&mut self) -> &mut RwasmEvmContext<DB> {
+        &mut self.inner.0.ctx
     }
 }
 
-impl<DB: Database, I, PRECOMPILE> Deref for EthEvm<DB, I, PRECOMPILE> {
-    type Target = EthEvmContext<DB>;
+impl<DB: Database, I, PRECOMPILE> Deref for RwasmEvm<DB, I, PRECOMPILE> {
+    type Target = RwasmEvmContext<DB>;
 
     #[inline]
     fn deref(&self) -> &Self::Target {
@@ -91,18 +83,18 @@ impl<DB: Database, I, PRECOMPILE> Deref for EthEvm<DB, I, PRECOMPILE> {
     }
 }
 
-impl<DB: Database, I, PRECOMPILE> DerefMut for EthEvm<DB, I, PRECOMPILE> {
+impl<DB: Database, I, PRECOMPILE> DerefMut for RwasmEvm<DB, I, PRECOMPILE> {
     #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         self.ctx_mut()
     }
 }
 
-impl<DB, I, PRECOMPILE> Evm for EthEvm<DB, I, PRECOMPILE>
+impl<DB, I, PRECOMPILE> Evm for RwasmEvm<DB, I, PRECOMPILE>
 where
     DB: Database,
-    I: Inspector<EthEvmContext<DB>>,
-    PRECOMPILE: PrecompileProvider<EthEvmContext<DB>, Output = InterpreterResult>,
+    I: Inspector<RwasmEvmContext<DB>>,
+    PRECOMPILE: PrecompileProvider<RwasmEvmContext<DB>, Output = InterpreterResult>,
 {
     type DB = DB;
     type Tx = TxEnv;
@@ -197,7 +189,7 @@ where
     }
 
     fn finish(self) -> (Self::DB, EvmEnv<Self::Spec>) {
-        let Context { block: block_env, cfg: cfg_env, journaled_state, .. } = self.inner.ctx;
+        let Context { block: block_env, cfg: cfg_env, journaled_state, .. } = self.inner.0.ctx;
 
         (journaled_state.database, EvmEnv { block_env, cfg_env })
     }
@@ -207,29 +199,29 @@ where
     }
 
     fn precompiles(&self) -> &Self::Precompiles {
-        &self.inner.precompiles
+        &self.inner.0.precompiles
     }
 
     fn precompiles_mut(&mut self) -> &mut Self::Precompiles {
-        &mut self.inner.precompiles
+        &mut self.inner.0.precompiles
     }
 
     fn inspector(&self) -> &Self::Inspector {
-        &self.inner.inspector
+        &self.inner.0.inspector
     }
 
     fn inspector_mut(&mut self) -> &mut Self::Inspector {
-        &mut self.inner.inspector
+        &mut self.inner.0.inspector
     }
 }
 
-/// Factory producing [`EthEvm`].
+/// Factory producing [`RwasmEvm`].
 #[derive(Debug, Default, Clone, Copy)]
 #[non_exhaustive]
-pub struct EthEvmFactory;
+pub struct RwasmEvmFactory;
 
-impl EvmFactory for EthEvmFactory {
-    type Evm<DB: Database, I: Inspector<EthEvmContext<DB>>> = EthEvm<DB, I, Self::Precompiles>;
+impl EvmFactory for RwasmEvmFactory {
+    type Evm<DB: Database, I: Inspector<RwasmEvmContext<DB>>> = RwasmEvm<DB, I, Self::Precompiles>;
     type Context<DB: Database> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
     type Tx = TxEnv;
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
@@ -239,12 +231,12 @@ impl EvmFactory for EthEvmFactory {
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, NoOpInspector> {
         let spec_id = input.cfg_env.spec;
-        EthEvm {
-            inner: Context::mainnet()
+        RwasmEvm {
+            inner: Context::rwasm()
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
                 .with_db(db)
-                .build_mainnet_with_inspector(NoOpInspector {})
+                .build_rwasm_with_inspector(NoOpInspector {})
                 .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
                     PrecompileSpecId::from_spec_id(spec_id),
                 ))),
@@ -259,12 +251,12 @@ impl EvmFactory for EthEvmFactory {
         inspector: I,
     ) -> Self::Evm<DB, I> {
         let spec_id = input.cfg_env.spec;
-        EthEvm {
-            inner: Context::mainnet()
+        RwasmEvm {
+            inner: Context::rwasm()
                 .with_block(input.block_env)
                 .with_cfg(input.cfg_env)
                 .with_db(db)
-                .build_mainnet_with_inspector(inspector)
+                .build_rwasm_with_inspector(inspector)
                 .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
                     PrecompileSpecId::from_spec_id(spec_id),
                 ))),
@@ -305,7 +297,7 @@ mod tests {
             early_cfg_env.chain_id = 1;
 
             let early_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: early_cfg_env };
-            let factory = EthEvmFactory;
+            let factory = RwasmEvmFactory;
             let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
 
             // precompile should NOT be available in early spec
