@@ -52,4 +52,6 @@ std = [
     "rwasm-revm/std"
 ]
 op = ["op-revm", "op-alloy-consensus"]
-enforce-rwasm = []
+enforce-rwasm = [
+    "rwasm-revm/wasmtime"
+]
