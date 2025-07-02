@@ -40,7 +40,7 @@ alloy-op-evm = { version = "0.10.0", path = "crates/op-evm", default-features = 
 
 # alloy
 alloy-eips = { version = "1.0.11", default-features = false }
-alloy-consensus = { version = "1.0.12", default-features = false }
+alloy-consensus = { version = "1.0.11", default-features = false }
 alloy-primitives = { version = "1.2.0", default-features = false }
 alloy-sol-types = { version = "1.2.0", default-features = false }
 alloy-hardforks = { version = "0.2" }
