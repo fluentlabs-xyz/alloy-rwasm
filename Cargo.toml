@@ -50,9 +50,9 @@ alloy-op-hardforks = { version = "0.2" }
 op-alloy-consensus = { version = "0.17", default-features = false }
 
 # revm
-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.4-dev", default-features = false }
-op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.4-dev", default-features = false }
-rwasm-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.4-dev", default-features = false }
+revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.5-dev", default-features = false }
+op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.5-dev", default-features = false }
+rwasm-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.3.5-dev", default-features = false }
 
 # misc
 auto_impl = "1"
