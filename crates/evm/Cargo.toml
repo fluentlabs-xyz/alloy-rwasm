@@ -19,11 +19,12 @@ alloy-primitives.workspace = true
 alloy-sol-types.workspace = true
 alloy-eips.workspace = true
 alloy-hardforks.workspace = true
+alloy-rpc-types-eth = { workspace = true, optional = true }
 
 revm.workspace = true
 op-revm = { workspace = true, optional = true }
 op-alloy-consensus = { workspace = true, optional = true }
-rwasm-revm = { workspace = true }
+fluentbase-revm = { workspace = true }
 
 auto_impl.workspace = true
 derive_more.workspace = true
@@ -49,9 +50,12 @@ std = [
     "op-revm?/std",
     "thiserror/std",
     "op-alloy-consensus?/std",
-    "rwasm-revm/std"
+    "alloy-rpc-types-eth?/std",
+    "fluentbase-revm/std"
 ]
 op = ["op-revm", "op-alloy-consensus"]
+overrides = ["dep:alloy-rpc-types-eth"]
+call-util = ["overrides"]
 enforce-rwasm = [
-    "rwasm-revm/wasmtime"
+    "fluentbase-revm/wasmtime"
 ]

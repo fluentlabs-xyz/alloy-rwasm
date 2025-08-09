@@ -5,6 +5,125 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0](https://github.com/alloy-rs/evm/releases/tag/v0.15.0) - 2025-07-21
+
+### Dependencies
+
+- Bump revm 2703 ([#133](https://github.com/alloy-rs/evm/issues/133))
+
+### Features
+
+- Add Any bound and as_any method to InvalidTxError trait ([#128](https://github.com/alloy-rs/evm/issues/128))
+- Enhance precompile lookup documentation and functionality ([#137](https://github.com/alloy-rs/evm/issues/137))
+- `EvmInternals::log` ([#135](https://github.com/alloy-rs/evm/issues/135))
+- Make fusing optional in `TxTracer` ([#131](https://github.com/alloy-rs/evm/issues/131))
+- Add is_pure method to Precompile trait ([#126](https://github.com/alloy-rs/evm/issues/126))
+
+### Miscellaneous Tasks
+
+- Convert PrecompilesMap into struct ([#136](https://github.com/alloy-rs/evm/issues/136))
+- Use revm system_call ([#121](https://github.com/alloy-rs/evm/issues/121))
+- Reorder struct def ([#129](https://github.com/alloy-rs/evm/issues/129))
+
+### Performance
+
+- Allocate capacity for balance changes ([#139](https://github.com/alloy-rs/evm/issues/139))
+- Only fuse inspector once ([#134](https://github.com/alloy-rs/evm/issues/134))
+
+## [0.14.0](https://github.com/alloy-rs/evm/releases/tag/v0.14.0) - 2025-07-03
+
+### Dependencies
+
+- Bump revm 27.0.2 ([#124](https://github.com/alloy-rs/evm/issues/124))
+
+### Features
+
+- Add BlockEnv to EvmInternals ([#123](https://github.com/alloy-rs/evm/issues/123))
+
+### Miscellaneous Tasks
+
+- Release 0.14.0
+
+## [0.13.0](https://github.com/alloy-rs/evm/releases/tag/v0.13.0) - 2025-07-01
+
+### Dependencies
+
+- Bump revm ([#122](https://github.com/alloy-rs/evm/issues/122))
+
+### Features
+
+- Add object-safe EvmInternals trait for journal operations ([#118](https://github.com/alloy-rs/evm/issues/118))
+- Add builder-style methods for precompile manipulation ([#120](https://github.com/alloy-rs/evm/issues/120))
+- Add setter utils to blockenv ([#116](https://github.com/alloy-rs/evm/issues/116))
+
+### Miscellaneous Tasks
+
+- Release 0.13.0
+- Add some DynPrompile impls ([#117](https://github.com/alloy-rs/evm/issues/117))
+
+## [0.12.3](https://github.com/alloy-rs/evm/releases/tag/v0.12.3) - 2025-06-24
+
+### Bug Fixes
+
+- `the trait bound `[u8]: AsRef<[_; 0]>` is not satisfied` in `precompiles` ([#114](https://github.com/alloy-rs/evm/issues/114))
+
+### Miscellaneous Tasks
+
+- Release 0.12.3
+
+## [0.12.2](https://github.com/alloy-rs/evm/releases/tag/v0.12.2) - 2025-06-23
+
+### Bug Fixes
+
+- Fix compilation
+
+### Documentation
+
+- Fix typo in tracing.rs comment ([#113](https://github.com/alloy-rs/evm/issues/113))
+- Correct spelling of "commit" in comments ([#112](https://github.com/alloy-rs/evm/issues/112))
+
+### Features
+
+- Add call-util feature with caller_gas_allowance ([#111](https://github.com/alloy-rs/evm/issues/111))
+
+### Miscellaneous Tasks
+
+- Release 0.12.2
+- Derive Copy for `PrecompileInput` ([#110](https://github.com/alloy-rs/evm/issues/110))
+- Release 0.12.1
+
+## [0.12.0](https://github.com/alloy-rs/evm/releases/tag/v0.12.0) - 2025-06-20
+
+### Dependencies
+
+- Bump revm 25 ([#100](https://github.com/alloy-rs/evm/issues/100))
+
+### Documentation
+
+- Improve apply_precompile documentation ([#106](https://github.com/alloy-rs/evm/issues/106))
+- Improve BlockExecutorFactory and ExecutionCtx documentation ([#104](https://github.com/alloy-rs/evm/issues/104))
+- Improve transaction trait documentation ([#103](https://github.com/alloy-rs/evm/issues/103))
+
+### Features
+
+- Add RPC utilities for block and state overrides ([#108](https://github.com/alloy-rs/evm/issues/108))
+- Provide more context to `Precompile::call` ([#109](https://github.com/alloy-rs/evm/issues/109))
+
+### Miscellaneous Tasks
+
+- Release 0.12.0
+
+## [0.11.0](https://github.com/alloy-rs/evm/releases/tag/v0.11.0) - 2025-06-11
+
+### Features
+
+- Tracing helpers ([#89](https://github.com/alloy-rs/evm/issues/89))
+
+### Miscellaneous Tasks
+
+- Release 0.11.0
+- Update `op-alloy-consensus` ([#101](https://github.com/alloy-rs/evm/issues/101))
+
 ## [0.10.0](https://github.com/alloy-rs/evm/releases/tag/v0.10.0) - 2025-05-23
 
 ### Dependencies
@@ -17,6 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Miscellaneous Tasks
 
+- Release 0.10.0
 - Preparing for mint nonoptional in reth ([#91](https://github.com/alloy-rs/evm/issues/91))
 
 ## [0.9.1](https://github.com/alloy-rs/evm/releases/tag/v0.9.1) - 2025-05-20
