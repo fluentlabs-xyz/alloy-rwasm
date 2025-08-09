@@ -60,6 +60,7 @@ op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat
 
 # fluentbase
 fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
 
 # misc
 auto_impl = "1"

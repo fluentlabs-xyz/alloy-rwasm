@@ -11,11 +11,13 @@ use alloy_rpc_types_eth::{
 };
 use revm::{
     bytecode::BytecodeDecodeError,
+    bytecode::ownable_account::OwnableAccountBytecode,
     context::BlockEnv,
     database::{CacheDB, State},
     state::{Account, AccountStatus, Bytecode, EvmStorageSlot},
     Database, DatabaseCommit,
 };
+use fluentbase_types::PRECOMPILE_EVM_RUNTIME;
 
 /// Errors that can occur when applying state overrides.
 #[derive(Debug, thiserror::Error)]
