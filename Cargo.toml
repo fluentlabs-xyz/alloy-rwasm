@@ -55,12 +55,12 @@ op-alloy-consensus = { version = "0.18", default-features = false }
 # revm
 #revm = { version = "27.0.3", default-features = false }
 #op-revm = { version = "8.0.3", default-features = false }
-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
-op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
+revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
+op-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
 
 # fluentbase
-fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
-fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-to-v82", default-features = false }
+fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
 
 # misc
 auto_impl = "1"
