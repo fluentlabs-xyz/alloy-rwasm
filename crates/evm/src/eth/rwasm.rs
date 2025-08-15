@@ -7,8 +7,7 @@ use core::{
     ops::{Deref, DerefMut},
 };
 use revm::{context::{BlockEnv, CfgEnv, TxEnv}, context_interface::result::{EVMError, HaltReason, ResultAndState}, handler::{instructions::EthInstructions, EthPrecompiles, PrecompileProvider}, inspector::NoOpInspector, interpreter::{interpreter::EthInterpreter, InterpreterResult}, precompile::{PrecompileSpecId, Precompiles}, primitives::hardfork::SpecId, Context, ExecuteEvm, InspectEvm, Inspector, SystemCallEvm};
-use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm};
-use revm::handler::EthFrame;
+use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm, RwasmFrame};
 
 /// The Ethereum EVM context type.
 pub type EthRwasmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
@@ -25,7 +24,7 @@ pub struct EthRwasm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
         I,
         EthInstructions<EthInterpreter, EthRwasmContext<DB>>,
         PRECOMPILE,
-        EthFrame,
+        RwasmFrame,
     >,
     inspect: bool,
 }
@@ -50,7 +49,7 @@ impl<DB: Database, I, PRECOMPILE> EthRwasm<DB, I, PRECOMPILE> {
     /// Consumes self and return the inner EVM instance.
     pub fn into_inner(
         self,
-    ) -> RevmRwasm<EthRwasmContext<DB>, I, EthInstructions<EthInterpreter, EthRwasmContext<DB>>, PRECOMPILE, EthFrame>
+    ) -> RevmRwasm<EthRwasmContext<DB>, I, EthInstructions<EthInterpreter, EthRwasmContext<DB>>, PRECOMPILE, RwasmFrame>
     {
         self.inner
     }
