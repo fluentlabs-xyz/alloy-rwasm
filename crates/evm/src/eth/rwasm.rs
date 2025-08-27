@@ -1,13 +1,13 @@
 //! Ethereum EVM implementation.
 
-use crate::{env::EvmEnv, evm::EvmFactory, precompiles::PrecompilesMap, Database, Evm};
+use crate::{env::EvmEnv, evm::EvmFactory, Database, Evm};
 use alloy_primitives::{Address, Bytes};
 use core::{
     fmt::Debug,
     ops::{Deref, DerefMut},
 };
-use revm::{context::{BlockEnv, CfgEnv, TxEnv}, context_interface::result::{EVMError, HaltReason, ResultAndState}, handler::{instructions::EthInstructions, EthPrecompiles, PrecompileProvider}, inspector::NoOpInspector, interpreter::{interpreter::EthInterpreter, InterpreterResult}, precompile::{PrecompileSpecId, Precompiles}, primitives::hardfork::SpecId, Context, ExecuteEvm, InspectEvm, Inspector, SystemCallEvm};
-use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm, RwasmFrame};
+use revm::{context::{BlockEnv, CfgEnv, TxEnv}, context_interface::result::{EVMError, HaltReason, ResultAndState}, handler::{instructions::EthInstructions, PrecompileProvider}, inspector::NoOpInspector, interpreter::{interpreter::EthInterpreter, InterpreterResult}, primitives::hardfork::SpecId, Context, ExecuteEvm, InspectEvm, Inspector, SystemCallEvm};
+use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm, RwasmFrame, RwasmPrecompiles};
 
 /// The Ethereum EVM context type.
 pub type EthRwasmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
@@ -18,7 +18,7 @@ pub type EthRwasmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
 /// support. [`Inspector`] support is configurable at runtime because it's part of the underlying
 /// [`RevmEvm`] type.
 #[expect(missing_debug_implementations)]
-pub struct EthRwasm<DB: Database, I, PRECOMPILE = EthPrecompiles> {
+pub struct EthRwasm<DB: Database, I, PRECOMPILE = RwasmPrecompiles> {
     inner: RevmRwasm<
         EthRwasmContext<DB>,
         I,
@@ -175,7 +175,7 @@ impl EvmFactory for EthRwasmFactory {
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
     type HaltReason = HaltReason;
     type Spec = SpecId;
-    type Precompiles = PrecompilesMap;
+    type Precompiles = RwasmPrecompiles;
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, NoOpInspector> {
         let spec_id = input.cfg_env.spec;
@@ -185,9 +185,7 @@ impl EvmFactory for EthRwasmFactory {
                 .with_cfg(input.cfg_env)
                 .with_db(db)
                 .build_rwasm_with_inspector(NoOpInspector {})
-                .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
-                    PrecompileSpecId::from_spec_id(spec_id),
-                ))),
+                .with_precompiles(RwasmPrecompiles::new_with_spec(spec_id)),
             inspect: false,
         }
     }
@@ -205,9 +203,7 @@ impl EvmFactory for EthRwasmFactory {
                 .with_cfg(input.cfg_env)
                 .with_db(db)
                 .build_rwasm_with_inspector(inspector)
-                .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
-                    PrecompileSpecId::from_spec_id(spec_id),
-                ))),
+                .with_precompiles(RwasmPrecompiles::new_with_spec(spec_id)),
             inspect: true,
         }
     }
@@ -249,8 +245,9 @@ mod tests {
             let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
 
             // precompile should NOT be available in early spec
+            let precompiles: &mut RwasmPrecompiles = early_evm.precompiles_mut();
             assert!(
-                early_evm.precompiles_mut().get(&precompile_addr).is_none(),
+                !<&mut RwasmPrecompiles as PrecompileProvider<Context>>::contains(&precompiles,&precompile_addr),
                 "{name} precompile at {precompile_addr:?} should NOT be available for early spec {early_spec:?}"
             );
 
@@ -261,9 +258,11 @@ mod tests {
             let later_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: later_cfg_env };
             let mut later_evm = factory.create_evm(EmptyDB::default(), later_env);
 
+
+            let precompiles: &mut RwasmPrecompiles = later_evm.precompiles_mut();
             // precompile should be available in later spec
             assert!(
-                later_evm.precompiles_mut().get(&precompile_addr).is_some(),
+                <&mut RwasmPrecompiles as PrecompileProvider<Context>>::contains(&precompiles,&precompile_addr),
                 "{name} precompile at {precompile_addr:?} should be available for later spec {later_spec:?}"
             );
         }

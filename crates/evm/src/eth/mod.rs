@@ -223,6 +223,7 @@ impl EvmFactory for EthEvmFactory {
 mod tests {
     use super::*;
     use alloy_primitives::address;
+    use fluentbase_revm::RwasmPrecompiles;
     use revm::{database_interface::EmptyDB, primitives::hardfork::SpecId};
     use crate::eth::rwasm::EthRwasmFactory;
 
@@ -256,8 +257,9 @@ mod tests {
             let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
 
             // precompile should NOT be available in early spec
+            let precompiles: &mut RwasmPrecompiles = early_evm.precompiles_mut();
             assert!(
-                early_evm.precompiles_mut().get(&precompile_addr).is_none(),
+                !<&mut RwasmPrecompiles as PrecompileProvider<Context>>::contains(&precompiles,&precompile_addr),
                 "{name} precompile at {precompile_addr:?} should NOT be available for early spec {early_spec:?}"
             );
 
@@ -268,9 +270,10 @@ mod tests {
             let later_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: later_cfg_env };
             let mut later_evm = factory.create_evm(EmptyDB::default(), later_env);
 
+            let precompiles: &mut RwasmPrecompiles = later_evm.precompiles_mut();
             // precompile should be available in later spec
             assert!(
-                later_evm.precompiles_mut().get(&precompile_addr).is_some(),
+                <&mut RwasmPrecompiles as PrecompileProvider<Context>>::contains(&precompiles,&precompile_addr),
                 "{name} precompile at {precompile_addr:?} should be available for later spec {later_spec:?}"
             );
         }
