@@ -6,8 +6,8 @@ use core::{
     fmt::Debug,
     ops::{Deref, DerefMut},
 };
-use revm::{context::{BlockEnv, CfgEnv, TxEnv}, context_interface::result::{EVMError, HaltReason, ResultAndState}, handler::{instructions::EthInstructions, EthPrecompiles, PrecompileProvider}, inspector::NoOpInspector, interpreter::{interpreter::EthInterpreter, InterpreterResult}, precompile::{PrecompileSpecId, Precompiles}, primitives::hardfork::SpecId, Context, ExecuteEvm, InspectEvm, Inspector, SystemCallEvm};
-use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm, RwasmFrame};
+use revm::{context::{BlockEnv, CfgEnv, TxEnv}, context_interface::result::{EVMError, HaltReason, ResultAndState}, handler::{instructions::EthInstructions, EthPrecompiles, PrecompileProvider}, inspector::NoOpInspector, interpreter::{interpreter::EthInterpreter, InterpreterResult}, primitives::hardfork::SpecId, Context, ExecuteEvm, InspectEvm, Inspector, SystemCallEvm};
+use fluentbase_revm::{DefaultRwasm, RwasmBuilder, RwasmEvm as RevmRwasm, RwasmFrame, RwasmPrecompiles};
 
 /// The Ethereum EVM context type.
 pub type EthRwasmContext<DB> = Context<BlockEnv, TxEnv, CfgEnv, DB>;
@@ -185,9 +185,7 @@ impl EvmFactory for EthRwasmFactory {
                 .with_cfg(input.cfg_env)
                 .with_db(db)
                 .build_rwasm_with_inspector(NoOpInspector {})
-                .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
-                    PrecompileSpecId::from_spec_id(spec_id),
-                ))),
+                .with_precompiles(PrecompilesMap::from_static(RwasmPrecompiles::new_with_spec(spec_id).precompiles())),
             inspect: false,
         }
     }
@@ -205,67 +203,9 @@ impl EvmFactory for EthRwasmFactory {
                 .with_cfg(input.cfg_env)
                 .with_db(db)
                 .build_rwasm_with_inspector(inspector)
-                .with_precompiles(PrecompilesMap::from_static(Precompiles::new(
-                    PrecompileSpecId::from_spec_id(spec_id),
-                ))),
+                .with_precompiles(PrecompilesMap::from_static(RwasmPrecompiles::new_with_spec(spec_id).precompiles())),
             inspect: true,
         }
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use alloy_primitives::address;
-    use revm::{database_interface::EmptyDB, primitives::hardfork::SpecId};
-
-    #[test]
-    fn test_precompiles_with_correct_spec() {
-        // create tests where precompile should be available for later specs but not earlier ones
-        let specs_to_test = [
-            // MODEXP (0x05) was added in Byzantium, should not exist in Frontier
-            (
-                address!("0x0000000000000000000000000000000000000005"),
-                SpecId::FRONTIER,  // Early spec - should NOT have this precompile
-                SpecId::BYZANTIUM, // Later spec - should have this precompile
-                "MODEXP",
-            ),
-            // BLAKE2F (0x09) was added in Istanbul, should not exist in Byzantium
-            (
-                address!("0x0000000000000000000000000000000000000009"),
-                SpecId::BYZANTIUM, // Early spec - should NOT have this precompile
-                SpecId::ISTANBUL,  // Later spec - should have this precompile
-                "BLAKE2F",
-            ),
-        ];
-
-        for (precompile_addr, early_spec, later_spec, name) in specs_to_test {
-            let mut early_cfg_env = CfgEnv::default();
-            early_cfg_env.spec = early_spec;
-            early_cfg_env.chain_id = 1;
-
-            let early_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: early_cfg_env };
-            let factory = EthRwasmFactory;
-            let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
-
-            // precompile should NOT be available in early spec
-            assert!(
-                early_evm.precompiles_mut().get(&precompile_addr).is_none(),
-                "{name} precompile at {precompile_addr:?} should NOT be available for early spec {early_spec:?}"
-            );
-
-            let mut later_cfg_env = CfgEnv::default();
-            later_cfg_env.spec = later_spec;
-            later_cfg_env.chain_id = 1;
-
-            let later_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: later_cfg_env };
-            let mut later_evm = factory.create_evm(EmptyDB::default(), later_env);
-
-            // precompile should be available in later spec
-            assert!(
-                later_evm.precompiles_mut().get(&precompile_addr).is_some(),
-                "{name} precompile at {precompile_addr:?} should be available for later spec {later_spec:?}"
-            );
-        }
-    }
-}

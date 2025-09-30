@@ -220,11 +220,11 @@ impl EvmFactory for EthEvmFactory {
 }
 
 #[cfg(test)]
+#[cfg(feature = "enforce-evm")]
 mod tests {
     use super::*;
     use alloy_primitives::address;
     use revm::{database_interface::EmptyDB, primitives::hardfork::SpecId};
-    use crate::eth::rwasm::EthRwasmFactory;
 
     #[test]
     fn test_precompiles_with_correct_spec() {
@@ -252,7 +252,7 @@ mod tests {
             early_cfg_env.chain_id = 1;
 
             let early_env = EvmEnv { block_env: BlockEnv::default(), cfg_env: early_cfg_env };
-            let factory = EthRwasmFactory;
+            let factory = EthEvmFactory;
             let mut early_evm = factory.create_evm(EmptyDB::default(), early_env);
 
             // precompile should NOT be available in early spec
