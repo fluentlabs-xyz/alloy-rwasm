@@ -59,10 +59,10 @@ revm = { package = "revm-rwasm", version = "27.0.3", default-features = false }
 op-revm = { package = "op-revm-rwasm", version = "8.0.3", default-features = false }
 
 # fluentbase
-fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.4.11-dev", default-features = false }
-fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.4.11-dev", default-features = false }
+fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "stf", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "stf", default-features = false }
 #fluentbase-revm = { path = "../fluentbase/crates/revm", default-features = false }
-#fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
+#fluentbase-types = { path = "../fluentbase/crates/types", default-features = false, features = ["svm"] }
 
 # misc
 auto_impl = "1"
