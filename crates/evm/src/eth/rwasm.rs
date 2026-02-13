@@ -92,6 +92,7 @@ where
     type Error = EVMError<DB::Error>;
     type HaltReason = HaltReason;
     type Spec = SpecId;
+    type BlockEnv = BlockEnv;
     type Precompiles = PRECOMPILE;
     type Inspector = I;
 
@@ -117,7 +118,7 @@ where
         contract: Address,
         data: Bytes,
     ) -> Result<ResultAndState, Self::Error> {
-        self.inner.transact_system_call_with_caller_finalize(caller, contract, data)
+        self.inner.system_call_with_caller(caller, contract, data)
     }
 
     fn db_mut(&mut self) -> &mut Self::DB {
@@ -175,6 +176,7 @@ impl EvmFactory for EthRwasmFactory {
     type Error<DBError: core::error::Error + Send + Sync + 'static> = EVMError<DBError>;
     type HaltReason = HaltReason;
     type Spec = SpecId;
+    type BlockEnv = BlockEnv;
     type Precompiles = PrecompilesMap;
 
     fn create_evm<DB: Database>(&self, db: DB, input: EvmEnv) -> Self::Evm<DB, NoOpInspector> {
