@@ -60,8 +60,8 @@ revm = { git = "https://github.com/fluentlabs-xyz/revm-rwasm", branch = "v103-pa
 op-revm = { git = "https://github.com/fluentlabs-xyz/revm-rwasm", branch = "v103-patched", default-features = false }
 
 # fluentbase
-fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-revm-to-v103", default-features = false }
-fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "feat/migrate-revm-to-v103", default-features = false }
+fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
 #fluentbase-revm = { path = "../fluentbase/crates/revm", default-features = false }
 #fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
 
