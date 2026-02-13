@@ -24,6 +24,8 @@ alloy-rpc-types-eth = { workspace = true, optional = true }
 revm.workspace = true
 op-revm = { workspace = true, optional = true }
 op-alloy-consensus = { workspace = true, optional = true }
+fluentbase-revm = { workspace = true }
+fluentbase-types = { workspace = true, optional = true }
 
 auto_impl.workspace = true
 derive_more.workspace = true
@@ -34,7 +36,7 @@ alloy-primitives = { workspace = true, features = ["serde"] }
 serde_json.workspace = true
 
 [features]
-default = ["std"]
+default = ["std", "enforce-evm", "wasmtime"]
 secp256k1 = [
     "std",
     "alloy-consensus/secp256k1",
@@ -49,8 +51,12 @@ std = [
     "op-revm?/std",
     "thiserror/std",
     "op-alloy-consensus?/std",
-    "alloy-rpc-types-eth?/std"
+    "alloy-rpc-types-eth?/std",
+    "fluentbase-revm/std",
+    "fluentbase-types?/std",
 ]
 op = ["op-revm", "op-alloy-consensus"]
-overrides = ["dep:alloy-rpc-types-eth"]
+overrides = ["dep:alloy-rpc-types-eth", "dep:fluentbase-types"]
 call-util = ["overrides"]
+enforce-evm = []
+wasmtime = ["fluentbase-revm/wasmtime"]
