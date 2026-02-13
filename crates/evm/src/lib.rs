@@ -13,7 +13,10 @@ pub mod block;
 pub mod evm;
 pub use evm::{Database, Evm, EvmFactory};
 pub mod eth;
-pub use eth::{EthEvm, EthEvmFactory};
+#[cfg(not(feature = "enforce-evm"))]
+pub use eth::{EthRwasmFactory as EthEvmFactory, EthRwasm as EthEvm, EthRwasmContext as EthRwasmContext};
+#[cfg(feature = "enforce-evm")]
+pub use eth::{EthEvm, EthEvmFactory, EthRwasmFactory, EthRwasm, EthRwasmContext};
 pub mod env;
 pub use env::EvmEnv;
 pub mod error;
@@ -38,6 +41,7 @@ mod either;
 // re-export revm and op-revm
 #[cfg(feature = "op")]
 pub use op_revm;
+pub use fluentbase_revm;
 pub use revm;
 
 pub use eth::spec_id::{spec, spec_by_timestamp_and_block_number};

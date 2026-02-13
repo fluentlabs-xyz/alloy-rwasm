@@ -44,7 +44,7 @@ alloy-chains = { version = "0.2.0", default-features = false }
 alloy-eips = { version = "1.0.34", default-features = false }
 alloy-consensus = { version = "1.0.27", default-features = false }
 alloy-primitives = { version = "1.0.0", default-features = false }
-alloy-sol-types = { version = "1.0.0", default-features = false }
+alloy-sol-types = { version = "1.0.0", default-features = false, features = ["json"] }
 alloy-hardforks = { version = "0.4.7" }
 alloy-rpc-types-eth = { version = "1.0.27", default-features = false }
 alloy-rpc-types-engine = { version = "1.0.27", default-features = false }
@@ -56,8 +56,16 @@ op-alloy = { version = "0.23", default-features = false, features = [
 ] }
 
 # revm
-revm = { version = "34.0.0", default-features = false }
-op-revm = { version = "15.0.0", default-features = false }
+#revm = { version = "27.0.3", default-features = false }
+#op-revm = { version = "8.0.3", default-features = false }
+revm = { package = "revm-rwasm", version = "27.0.3", default-features = false }
+op-revm = { package = "op-revm-rwasm", version = "8.0.3", default-features = false }
+
+# fluentbase
+fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.4.11-dev", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v0.4.11-dev", default-features = false }
+#fluentbase-revm = { path = "../fluentbase/crates/revm", default-features = false }
+#fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
 
 # misc
 auto_impl = "1"

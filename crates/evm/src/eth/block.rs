@@ -4,7 +4,6 @@ use super::{
     dao_fork, eip6110,
     receipt_builder::{AlloyReceiptBuilder, ReceiptBuilder, ReceiptBuilderCtx},
     spec::{EthExecutorSpec, EthSpec},
-    EthEvmFactory,
 };
 use crate::{
     block::{
@@ -26,6 +25,7 @@ use revm::{
     database::{DatabaseCommitExt, State},
     DatabaseCommit, Inspector,
 };
+use crate::eth::rwasm::EthRwasmFactory;
 
 /// Context for Ethereum block execution.
 #[derive(Debug, Clone)]
@@ -274,7 +274,7 @@ where
 pub struct EthBlockExecutorFactory<
     R = AlloyReceiptBuilder,
     Spec = EthSpec,
-    EvmFactory = EthEvmFactory,
+    EvmFactory = EthRwasmFactory,
 > {
     /// Receipt builder.
     receipt_builder: R,

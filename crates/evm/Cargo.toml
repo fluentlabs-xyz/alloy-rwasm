@@ -27,6 +27,10 @@ revm.workspace = true
 op-revm = { workspace = true, optional = true }
 op-alloy = { workspace = true, optional = true }
 
+# fluentbase
+fluentbase-revm = { workspace = true }
+fluentbase-types = { workspace = true, optional = true }
+
 auto_impl.workspace = true
 derive_more.workspace = true
 thiserror.workspace = true
@@ -37,7 +41,7 @@ serde_json.workspace = true
 test-case.workspace = true
 
 [features]
-default = ["std"]
+default = ["std", "enforce-evm", "wasmtime"]
 secp256k1 = [
     "std",
     "alloy-consensus/secp256k1",
@@ -53,14 +57,18 @@ std = [
 	"thiserror/std",
 	"op-alloy?/std",
 	"alloy-rpc-types-eth?/std",
-	"alloy-rpc-types-engine?/std"
+	"alloy-rpc-types-engine?/std",
+    "fluentbase-revm/std",
+    "fluentbase-types?/std",
 ]
 gmp = [
     "revm/gmp",
 ]
 op = ["op-revm", "op-alloy", "alloy-op-hardforks"]
-overrides = ["dep:alloy-rpc-types-eth"]
+overrides = ["dep:alloy-rpc-types-eth", "dep:fluentbase-types"]
 call-util = ["overrides"]
 engine = ["dep:alloy-rpc-types-engine", "op-alloy?/rpc-types-engine"]
 asm-keccak = ["alloy-primitives/asm-keccak", "revm/asm-keccak"]
 rpc = ["dep:alloy-rpc-types-eth", "op-alloy?/rpc-types"]
+enforce-evm = []
+wasmtime = ["fluentbase-revm/wasmtime"]

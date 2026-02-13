@@ -24,11 +24,12 @@ use revm::{
 
 mod block;
 pub use block::*;
-
 pub mod dao_fork;
 pub mod eip6110;
 pub mod receipt_builder;
 pub mod spec;
+pub mod rwasm;
+pub use rwasm::*;
 
 mod env;
 pub(crate) mod spec_id;
@@ -291,6 +292,7 @@ impl EvmFactory for EthEvmFactory {
 }
 
 #[cfg(test)]
+#[cfg(feature = "enforce-evm")]
 mod tests {
     use super::*;
     use alloy_primitives::address;
