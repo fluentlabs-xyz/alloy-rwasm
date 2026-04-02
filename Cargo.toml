@@ -56,8 +56,8 @@ op-alloy = { version = "0.23", default-features = false, features = [
 ] }
 
 # revm
-revm = { version = "34.0.0", default-features = false }
-op-revm = { version = "15.0.0", default-features = false }
+revm = { package = "revm-rwasm", version = "34.0.1", default-features = false }
+op-revm = { package = "op-revm-rwasm", version = "15.0.1", default-features = false }
 
 # misc
 auto_impl = "1"
