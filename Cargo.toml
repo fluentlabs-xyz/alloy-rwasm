@@ -60,8 +60,8 @@ revm = { git = "https://github.com/fluentlabs-xyz/revm-rwasm", branch = "v103-pa
 op-revm = { git = "https://github.com/fluentlabs-xyz/revm-rwasm", branch = "v103-patched", default-features = false }
 
 # fluentbase
-fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
-fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", branch = "devel", default-features = false }
+fluentbase-revm = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v1.2.0", default-features = false }
+fluentbase-types = { git = "https://github.com/fluentlabs-xyz/fluentbase", tag = "v1.2.0", default-features = false }
 #fluentbase-revm = { path = "../fluentbase/crates/revm", default-features = false }
 #fluentbase-types = { path = "../fluentbase/crates/types", default-features = false }
 
@@ -72,6 +72,3 @@ serde = { version = "1", default-features = false, features = ["derive"] }
 thiserror = { version = "2.0.0", default-features = false }
 serde_json = "1"
 test-case = "3"
-
-[patch.crates-io]
-rwasm = { git = "https://github.com/fluentlabs-xyz/rwasm", branch = "devel" }
